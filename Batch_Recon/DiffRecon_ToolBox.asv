@@ -157,12 +157,7 @@ classdef DiffRecon_ToolBox
                                 end
                             end
                             for cpt_avg=1:1: enum.dataset(cpt_set).slc(cpt_slc).b(cpt_b).dir(cpt_dir).nb_avg
-                                tmpIn=squeeze(Dcm(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set));
-                                if (~isnan(max(tmpIn(:))))
-                                    Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set)=  imregister(tmpIn, ref, 'affine' , optimizer, metric);
-                                else
-                                     Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set)=tmpIn;
-                                end
+                                Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set)=  imregister(squeeze(Dcm(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set)), ref, 'affine' , optimizer, metric);
                             end
                         end
                     end
@@ -214,17 +209,12 @@ classdef DiffRecon_ToolBox
                     for cpt_b=1:1:enum.datasize(cpt_set).b
                         for cpt_dir=1:1: enum.dataset(cpt_set).slc(cpt_slc).b(cpt_b).nb_dir
                             for cpt_avg=1:1: enum.dataset(cpt_set).slc(cpt_slc).b(cpt_b).dir(cpt_dir).nb_avg
-                                tmpIn=Dcm(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set);
-                                if (~isnan(max(tmpIn(:))))
-                                    [Mp,eng] = DiffRegistrationLinear(ref,tmpIn);%%DiffRegistrationLinear
-                                    if eng<550
-                                        Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg)=Mp;
-                                    else
-                                        Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg)=zeros(size(Mp,1),size(Mp,2));
-                                        % cpt_avg_tmp=cpt_avg_tmp-11;
-                                    end
+                                [Mp,eng] = DiffRegistrationLinear(ref,Dcm(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set));%%DiffRegistrationLinear
+                                if eng<550
+                                    Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg)=Mp;
                                 else
-                                     Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg)=tmpIn;
+                                    Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg)=zeros(size(Mp,1),size(Mp,2));
+                                    % cpt_avg_tmp=cpt_avg_tmp-11;
                                 end
                             end
                         end
@@ -459,7 +449,7 @@ classdef DiffRecon_ToolBox
                     for cpt_b=1:1:enum.datasize(cpt_set).b
                         for cpt_dir=1:1: enum.dataset(cpt_set).slc(cpt_slc).b(cpt_b).nb_dir
                             for cpt_avg=1:1: enum.dataset(cpt_set).slc(cpt_slc).b(cpt_b).dir(cpt_dir).nb_avg
-                                Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,1,cpt_set)=nanmax(Dcm(:,:,cpt_slc,cpt_b,cpt_dir,:,cpt_set),[],6);
+                                Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,1,cpt_set)=max(Dcm(:,:,cpt_slc,cpt_b,cpt_dir,:,cpt_set),[],6);
                             end
                             enum2.dataset(cpt_set).slc(cpt_slc).b(cpt_b).dir(cpt_dir).nb_avg=1;
                         end
@@ -614,12 +604,7 @@ classdef DiffRecon_ToolBox
                     for cpt_b=1:1:enum.datasize(cpt_set).b
                         for cpt_dir=1:1: enum.dataset(cpt_set).slc(cpt_slc).b(cpt_b).nb_dir
                             for cpt_avg=1:1: enum.dataset(cpt_set).slc(cpt_slc).b(cpt_b).dir(cpt_dir).nb_avg
-                                tmpIn=Dcm(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set);
-                                if (~isnan(max(tmpIn(:))))
-                                    Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set)=  imregister(tmpIn, ref, 'affine', optimizer, metric);
-                                else
-                                    Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set)=tmpIn;
-                                end
+                                Dcm2(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set)=  imregister(Dcm(:,:,cpt_slc,cpt_b,cpt_dir,cpt_avg,cpt_set), ref, 'affine', optimizer, metric);
                             end
                         end
                     end

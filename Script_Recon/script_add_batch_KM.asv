@@ -1,0 +1,7 @@
+
+
+function script_add_batch_KM(struct_diff)
+    
+        disp(['Trace reconstruction missing for ROI ' struct_diff.Patient)
+end
+

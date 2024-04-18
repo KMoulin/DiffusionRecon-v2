@@ -57,7 +57,7 @@ function callback_ROI(source, eventdata)
 end
 function callback_addScript(source, eventdata)
     Run_add_Script_Batch();
-    Run_Dicom_Batch();
+  %  Run_Dicom_Batch();
     Save_Batch();
 end
 function callback_dicom(source, eventdata)
