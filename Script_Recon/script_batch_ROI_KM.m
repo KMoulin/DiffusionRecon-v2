@@ -11,7 +11,7 @@ function script_batch_ROI_KM(struct_diff)
     if isfile(fullfile(struct_diff.ReconFolder, 'Trace.mat'))
         load(fullfile(struct_diff.ReconFolder, 'Trace.mat'))
         [P_Endo,P_Epi,LV_Mask,Mask_Depth]= DiffRecon_ToolBox.ROI_KM(Trace(:,:,:,2));
-        [Mask_AHA] = DiffRecon_ToolBox.ROI2AHA_KM (Trace(:,:,:,2), P_Endo, P_Epi);
+        [Mask_AHA] = DiffRecon_ToolBox.ROI2AHA_KM (Trace(:,:,:,2), P_Endo, LV_Mask);
         save([enum.recon_dir '/ROI.mat'],'P_Endo','P_Epi','LV_Mask','Mask_AHA','Mask_Depth');    
   
         %[P_Endo,P_Epi,LV_Mask,Mask_Depth]= ROI_NNUNET_KM(Trace(:,:,:,2),enum);

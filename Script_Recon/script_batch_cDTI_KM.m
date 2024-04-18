@@ -162,7 +162,7 @@ function script_batch_cDTI_KM(struct_diff,UI)
                   load(fullfile(enum.old_recon, 'ROI.mat'));       
              else
                   [P_Endo,P_Epi,LV_Mask,Mask_Depth]= DiffRecon_ToolBox.ROI_KM(Trace(:,:,:,2));
-                  [Mask_AHA] = DiffRecon_ToolBox.ROI2AHA_KM (Dcm, P_Endo, P_Epi);
+                  [Mask_AHA] = DiffRecon_ToolBox.ROI2AHA_KM (Dcm, P_Endo, P_Epi,LV_Mask);
              end
              save(fullfile(enum.recon_dir, 'ROI.mat'),'P_Endo','P_Epi','LV_Mask','Mask_AHA','Mask_Depth');    
     end

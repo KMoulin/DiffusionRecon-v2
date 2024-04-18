@@ -163,7 +163,7 @@ if UI.roi_mode
      load (fullfile(enum.recon_dir ,'ROI.mat'));
      else   
          [P_Endo,P_Epi,LV_Mask,Mask_Depth]= DiffRecon_ToolBox.ROI_KM(Trace(:,:,:,2));
-        [Mask_AHA] = DiffRecon_ToolBox.ROI2AHA_KM (Dcm, P_Endo, P_Epi);
+        [Mask_AHA] = DiffRecon_ToolBox.ROI2AHA_KM (Dcm, P_Endo, P_Epi,LV_Mask);
         %Dcm=Apply_Mask_KM(Dcm,LV_mask);
         save(fullfile(enum.recon_dir ,'ROI.mat'),'P_Endo','P_Epi','LV_Mask','Mask_AHA','Mask_Depth');
      end
