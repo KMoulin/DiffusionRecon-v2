@@ -148,8 +148,8 @@ function Run_Batch
                 try
                     script_batch_cDTI_KM(Batch_struct.struct_diff(cpt_diff),Batch_struct.UI);
                      Batch_struct.struct_diff(cpt_diff).hasError=false;
-                catch
-                    disp(['Problem with ' Batch_struct.struct_diff(cpt_diff).Patient ' serie ' num2str(Batch_struct.struct_diff(cpt_diff).SerieNumber)]);
+                catch ME
+                    disp(['Problem with ' Batch_struct.struct_diff(cpt_diff).Patient ' serie ' num2str(Batch_struct.struct_diff(cpt_diff).SerieNumber) ':' ME.message]);
                     Batch_struct.struct_diff(cpt_diff).hasError=true;
                 end
                
@@ -189,8 +189,8 @@ function Run_Dicom_Batch
                       try
                          script_batch_DICOM_KM(Batch_struct.struct_diff(cpt_diff));
                          Batch_struct.struct_diff(cpt_diff).hasDicomError=false;
-                      catch
-                         disp(['Problem with DICOM Recon ' Batch_struct.struct_diff(cpt_diff).Patient ' serie ' num2str(Batch_struct.struct_diff(cpt_diff).SerieNumber)]);
+                      catch ME
+                         disp(['Problem with DICOM Recon ' Batch_struct.struct_diff(cpt_diff).Patient ' serie ' num2str(Batch_struct.struct_diff(cpt_diff).SerieNumber) ':' ME.message]);
                          Batch_struct.struct_diff(cpt_diff).hasDicomError=true;
                       end
                       Update_Batch_Table();
@@ -226,7 +226,7 @@ function New_Batch
         
         
         Batch_struct.UI=UIDiffRecon_KM(true);
-       
+
    
         listing=dir(fullfile(Batch_struct.dcm_dir, '**'));
         listing=listing(~[listing.isdir]);  % Remove folder
@@ -238,20 +238,19 @@ function New_Batch
 
         listing_dcm=[];
         for cpt_folder=1:length(listing_folder)
-
-            listing_dcm=[listing_dcm; dir(listing_folder(cpt_folder))];
-           %
+            contents = dir(strtrim(listing_folder(cpt_folder)));
+            listing_dcm=[listing_dcm; contents];
         end
 
         [struct_diff, struct_final, ListNames, ListSeries]=Analyze_Content_local(listing_dcm,[]); % Create a brand new list_update;
-          
+
         Batch_struct.struct_diff=struct_diff;
         Batch_struct.struct_update=struct_final;
         Batch_struct.DataUI = Struct2DataUI(struct_diff);
 
         Batch_loaded=true;
 end
-   
+
 function Load_Batch
       
         [file path]=uigetfile('.mat');
@@ -274,12 +273,11 @@ function Create_UI
 end
 function Update_Batch_Table
      if Batch_loaded
-        
          if UI_created % we update the batch from the UI only if the UI already exist
             Batch_struct.struct_diff=DataUI2Struct(Batch_struct.struct_diff,uit.Data);
          end
+
         for cpt_diff=1:length(Batch_struct.struct_diff)
-             
                 fullfile(string(Batch_struct.dcm_dir),'Batch_Recon','Maps_'+string(Batch_struct.struct_diff(cpt_diff).Patient)+'_'+Batch_struct.struct_diff(cpt_diff).SerieNumber+'_'+string(Batch_struct.name(1:end-4)));
                 Batch_struct.struct_diff(cpt_diff).ReconFolder=fullfile(string(Batch_struct.dcm_dir),'Batch_Recon','Maps_'+string(Batch_struct.struct_diff(cpt_diff).Patient)+'_'+Batch_struct.struct_diff(cpt_diff).SerieNumber+'_'+string(Batch_struct.name(1:end-4)));
                 Batch_struct.struct_diff(cpt_diff).ReconDcmFolder=fullfile(string(Batch_struct.dcm_dir),'Dicom_Recon','Maps_'+string(Batch_struct.struct_diff(cpt_diff).Patient)+'_'+Batch_struct.struct_diff(cpt_diff).SerieNumber+'_'+string(Batch_struct.name(1:end-4)));
@@ -323,13 +321,13 @@ function Update_Batch
                  LL=Batch_struct.struct_update(cpt).Listing;
                  folderAlreadySorted=[folderAlreadySorted string(unique(string({LL(:).folder})))]; 
         end
-        folderAlreadySorted=deblank(folderAlreadySorted);
+        folderAlreadySorted=strtrim(folderAlreadySorted);
         % Idx=contains(folderAlreadySorted , 'Dicom_Recon' ); 
         % folderAlreadySorted(Idx)=[];
 
         for cpt_folder=1:length(listing_folder)
-             if( ~contains(deblank(listing_folder(cpt_folder)) , folderAlreadySorted))
-                listing_dcm=[listing_dcm; dir(listing_folder(cpt_folder))];
+             if( ~contains(strtrim(listing_folder(cpt_folder)) , folderAlreadySorted))
+                listing_dcm=[listing_dcm; dir(strtrim(listing_folder(cpt_folder)))];
              end
            %
         end
@@ -397,7 +395,6 @@ function DataUI=Struct2DataUI(struct_diff)
 end
 function struct_diff=DataUI2Struct(struct_diff,DataUI)
 
-    
     for cpt_diff=1:length(struct_diff)
         
         
@@ -424,13 +421,17 @@ function [struct_diff, struct_final, ListNames, ListSeries] =Analyze_Content_loc
     cpt_name=0;
     k=1;
     h = waitbar(0,'Analyzing the folders...');
-    for cpt=1:1:size(listing,1)   
+    for cpt=1:1:size(listing,1)
             if ~listing(cpt).isdir & isempty(strfind(listing(cpt).folder,'Batch_Recon'))
                                 
-                 [FolderName, name, fExt] = fileparts(listing(cpt).name);
-        
+                [FolderName, name, fExt] = fileparts(listing(cpt).name);
+
                 if (strcmp(fExt, '.dcm') | strcmp(fExt, '.IMA') | isempty(fExt))  & ~ strcmp('DICOMDIR',listing(cpt).name) 
-                    tmpInfo=dicominfo(fullfile(listing(cpt).folder , listing(cpt).name));
+                    try
+                        tmpInfo=dicominfo(fullfile(listing(cpt).folder , listing(cpt).name));
+                    catch dicomerr
+                        disp(['Failed to parse DICOM information from file ' string(listing(cpt).name)])
+                    end
                     %tmpDcm=dicomread([listing(cpt).folder '\' listing(cpt).name]);
                     %Dcm(:,:,k)=double(dicomread(listing(cpt).name));
                     %Dcm(k)=tmpInfo.SeriesNumber;
@@ -480,7 +481,7 @@ function [struct_diff, struct_final, ListNames, ListSeries] =Analyze_Content_loc
                     badc=~isempty(strfind(tmpImageType,'ADC'));
                     bfa=~isempty(strfind(tmpImageType,'FA'));
                     bten=~isempty(strfind(tmpImageType,'TENSOR'))&isempty(strfind(tmpImageType,'TENSOR_B0'));
-                    
+
                     if ~isfield (tmpInfo,'PatientID')
                          if isfield (tmpInfo,'OtherPatientID')
                             tmpInfo.PatientID=tmpInfo.OtherPatientID;
