@@ -29,7 +29,7 @@ function script_batch_DICOM_KM(struct_diff)
         Recon_Local_Dicom_Maps(struct_diff,tmpMap.FA*1e3,tmpEnum,'FA',50000,[0 1e3]);
     end
      
-    if isfile(fullfile(struct_diff.ReconFolder, 'HA.mat') && isfile(fullfile(struct_diff.ReconFolder, 'ROI.mat'))
+    if isfile(fullfile(struct_diff.ReconFolder, 'HA.mat')) && isfile(fullfile(struct_diff.ReconFolder, 'ROI.mat'))
         tmpMap=load(fullfile(struct_diff.ReconFolder, 'HA.mat'));
         tmpMap2=load(fullfile(struct_diff.ReconFolder, 'ROI.mat'));
         Recon_Local_Dicom_Maps(struct_diff,(tmpMap.HA_filter2+90)*1e1.*tmpMap2.LV_Mask,tmpEnum,'HA',60000,[0 180*1e1]);
